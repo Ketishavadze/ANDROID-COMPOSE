@@ -40,7 +40,6 @@ fun ChatScreen(
         else state.chats.filter { it.owner.lowercase().contains(q) } // owner = name surname
     }
 
-    // Local screen colors (like your requirement)
     val backgroundDark = Color(0xFF0F1B22)
     val hintGray = Color(0xFF8D98A1)
     val searchBg = Color(0xFF1A2A33)
@@ -155,7 +154,6 @@ private fun ChatRowItem(
     hintGray: Color,
     accentGreen: Color
 ) {
-    // row background similar to selectableItemBackground vibe
     val rowBg = Color(0xFF12232C)
 
     Row(
@@ -167,7 +165,6 @@ private fun ChatRowItem(
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // avatar
         if (chat.imageUrl != null) {
             AsyncImage(
                 model = chat.imageUrl,
@@ -178,7 +175,6 @@ private fun ChatRowItem(
                 contentScale = ContentScale.Crop
             )
         } else {
-            // fallback circle if no image hooking yet
             Box(
                 modifier = Modifier
                     .size(48.dp)

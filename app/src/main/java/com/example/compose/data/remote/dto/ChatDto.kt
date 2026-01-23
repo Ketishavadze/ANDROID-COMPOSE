@@ -13,5 +13,5 @@ data class ChatDto(
     @SerialName("last_active") val lastActive: String,
     @SerialName("unread_messages") val unreadMessages: Int,
     @SerialName("is_typing") val isTyping: Boolean,
-    @SerialName("laste_message_type") val lastMessageType: String
+    @SerialName("last_message_type") val lastMessageType: String
 )
