@@ -1,5 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
+@OptIn(ExperimentalMaterial3Api::class)
 package com.example.compose.ui.screen.chat
 
 import androidx.compose.foundation.Image
