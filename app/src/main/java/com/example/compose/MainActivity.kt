@@ -4,8 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.example.compose.navigation.AppNavHost
-import com.example.compose.ui.theme.ComposeTheme
+import androidx.compose.material3.MaterialTheme
+import com.example.compose.ui.screen.chat.ChatScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -14,8 +14,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            ComposeTheme {
-                AppNavHost()
+            MaterialTheme {
+                ChatScreen()
             }
         }
     }

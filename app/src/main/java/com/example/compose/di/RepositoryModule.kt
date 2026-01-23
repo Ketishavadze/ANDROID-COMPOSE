@@ -1,7 +1,7 @@
 package com.example.compose.di
 
-import com.example.compose.data.repository.OrdersRepositoryImpl
-import com.example.compose.domain.repository.OrdersRepository
+import com.example.compose.data.repository.ChatsRepositoryImpl
+import com.example.compose.domain.repository.ChatsRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -12,5 +12,5 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
     @Binds @Singleton
-    abstract fun bindOrdersRepository(impl: OrdersRepositoryImpl): OrdersRepository
+    abstract fun bindChatsRepository(impl: ChatsRepositoryImpl): ChatsRepository
 }
