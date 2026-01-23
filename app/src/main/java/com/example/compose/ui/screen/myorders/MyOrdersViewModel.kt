@@ -2,7 +2,6 @@ package com.example.compose.ui.screen.myorders
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.compose.domain.model.OrderStatus
 import com.example.compose.domain.usecase.GetOrdersUseCase
 import com.example.compose.domain.usecase.RefreshOrdersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,14 +26,19 @@ class MyOrdersViewModel @Inject constructor(
         when (intent) {
             MyOrdersContract.Intent.Load -> load()
             MyOrdersContract.Intent.Refresh -> refresh()
-            is MyOrdersContract.Intent.SelectStatus -> _state.update { it.copy(selectedStatus = intent.status) }
+            is MyOrdersContract.Intent.SelectStatus -> {
+                _state.update { current -> current.copy(selectedStatus = intent.status) }
+            }
         }
     }
 
     private fun load() = viewModelScope.launch {
         _state.update { it.copy(isLoading = true, error = null) }
+
         runCatching { getOrders() }
-            .onSuccess { list -> _state.update { it.copy(isLoading = false, orders = list) } }
+            .onSuccess { list ->
+                _state.update { it.copy(isLoading = false, orders = list) }
+            }
             .onFailure { e ->
                 _state.update { it.copy(isLoading = false, error = e.message ?: "Unknown error") }
                 _effects.trySend(MyOrdersContract.Effect.ShowToast("Failed to load orders"))
@@ -43,29 +47,14 @@ class MyOrdersViewModel @Inject constructor(
 
     private fun refresh() = viewModelScope.launch {
         _state.update { it.copy(isRefreshing = true, error = null) }
+
         runCatching { refreshOrders() }
-            .onSuccess { list -> _state.update { it.copy(isRefreshing = false, orders = list) } }
+            .onSuccess { list ->
+                _state.update { it.copy(isRefreshing = false, orders = list) }
+            }
             .onFailure { e ->
                 _state.update { it.copy(isRefreshing = false, error = e.message ?: "Unknown error") }
                 _effects.trySend(MyOrdersContract.Effect.ShowToast("Failed to refresh"))
             }
     }
-
-//    private fun changeStatus(id: String, newStatus: OrderStatus) = viewModelScope.launch {
-//        val current = _state.value.order ?: return@launch
-//
-//        val allowed = current.status == OrderStatus.PENDING &&
-//                (newStatus == OrderStatus.DELIVERED || newStatus == OrderStatus.CANCELED)
-//
-//        if (!allowed) return@launch
-//
-//        runCatching { updateOrderStatus(id, newStatus) }
-//            .onSuccess { updated ->
-//                _state.update { it.copy(order = updated, error = null) }
-//            }
-//            .onFailure { e ->
-//                _state.update { it.copy(error = e.message) }
-//            }
-//    }
-
 }

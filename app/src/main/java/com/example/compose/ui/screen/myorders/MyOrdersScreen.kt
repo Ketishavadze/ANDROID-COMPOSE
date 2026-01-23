@@ -12,11 +12,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.compose.ui.components.OrderCard
 import com.example.compose.ui.components.StatusChipsRow
+import com.example.compose.ui.graphics.AppColors
 import kotlinx.coroutines.flow.collectLatest
+import androidx.compose.ui.res.painterResource
+import com.example.compose.R
 
 @Composable
 fun MyOrdersScreen(
@@ -53,12 +57,25 @@ fun MyOrdersScreen(
             CenterAlignedTopAppBar(
                 title = { Text("My Orders") },
                 navigationIcon = {
-                    IconButton(onClick = { /* optional */ }) {
-                        Text("≡")
+                    IconButton(onClick = {}) {
+                        @androidx.compose.runtime.Composable {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_menu),
+                                contentDescription = "Menu" ,
+                                tint = AppColors.TextPrimary
+                            )
+
+                        }
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* optional */ }) { Text("🔔") }
+                    IconButton(onClick = {}) {
+                        Icon(
+                        painter = painterResource(id = R.drawable.ic_notification),
+                        contentDescription = "Notifications",
+                            tint = AppColors.TextPrimary
+                        )
+                    }
                 }
             )
         }

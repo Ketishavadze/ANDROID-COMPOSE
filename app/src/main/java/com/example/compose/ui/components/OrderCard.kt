@@ -6,12 +6,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.compose.domain.model.Order
 import com.example.compose.domain.model.OrderStatus
+import com.example.compose.ui.graphics.AppColors
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -27,19 +27,19 @@ fun OrderCard(
     }
 
     val statusColor = when (order.status) {
-        OrderStatus.PENDING -> Color(0xFFFF8A00)
-        OrderStatus.DELIVERED -> Color(0xFF2E7D32)
-        OrderStatus.CANCELED -> Color(0xFFC62828)
+        OrderStatus.PENDING -> AppColors.Pending
+        OrderStatus.DELIVERED -> AppColors.Delivered
+        OrderStatus.CANCELED -> AppColors.Canceled
     }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White // ✅ completely white
+            containerColor = AppColors.CardBackground
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 6.dp // ✅ shadow on edges
+            defaultElevation = 6.dp
         )
     ) {
         Column(Modifier.padding(16.dp)) {
@@ -49,33 +49,30 @@ fun OrderCard(
                     text = "Order #${order.orderNumber}",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.Black
+                    color = AppColors.TextPrimary
                 )
 
-                // date right top
                 Text(
                     text = dateText,
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFF8A8A8A)
+                    color = AppColors.TextSecondary
                 )
             }
 
             Spacer(Modifier.height(12.dp))
 
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Column(Modifier.weight(1f)) {
-                    Text(
-                        text = "Tracking number:",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color(0xFF8A8A8A)
-                    )
-                    Text(
-                        text = order.trackingNumber,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = Color.Black
-                    )
-                }
+            Column {
+                Text(
+                    text = "Tracking number:",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = AppColors.TextSecondary
+                )
+                Text(
+                    text = order.trackingNumber,
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = AppColors.TextPrimary
+                )
             }
 
             Spacer(Modifier.height(10.dp))
@@ -84,13 +81,13 @@ fun OrderCard(
                 Text(
                     text = "Quantity: ${order.quantity}",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color(0xFF8A8A8A)
+                    color = AppColors.TextSecondary
                 )
                 Text(
                     text = "Subtotal: $${order.subtotal}",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.Black
+                    color = AppColors.TextPrimary
                 )
             }
 
@@ -101,25 +98,25 @@ fun OrderCard(
                     text = order.status.name,
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.SemiBold,
-                    color = statusColor // ✅ orange/green/red
+                    color = statusColor
                 )
 
                 OutlinedButton(
                     onClick = onDetails,
                     shape = RoundedCornerShape(18.dp),
                     contentPadding = PaddingValues(horizontal = 18.dp, vertical = 6.dp),
-                    border = ButtonDefaults.outlinedButtonBorder.copy(width = 1.dp),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, AppColors.DetailsButtonBorder),
                     colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Color.Black
+                        contentColor = AppColors.DetailsButtonText
                     )
                 ) {
                     Text("Details")
                 }
+
             }
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable

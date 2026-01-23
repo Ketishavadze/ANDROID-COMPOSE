@@ -8,6 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.compose.domain.model.OrderStatus
+import androidx.compose.ui.res.painterResource
+import com.example.compose.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,7 +29,7 @@ fun OrderDetailsScreen(
             TopAppBar(
                 title = { Text("Details") },
                 navigationIcon = {
-                    IconButton(onClick = onBack) { Text("<") }
+                    IconButton(onClick = onBack) { Icon(painter = painterResource(id = R.drawable.ic_back), contentDescription = "Back") }
                 }
             )
         }

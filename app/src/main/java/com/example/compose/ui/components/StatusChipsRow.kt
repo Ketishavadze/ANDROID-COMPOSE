@@ -6,12 +6,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.compose.domain.model.OrderStatus
+import com.example.compose.ui.graphics.AppColors
 
 @Composable
 fun StatusChipsRow(
@@ -33,21 +34,17 @@ fun StatusChipsRow(
                     label = {
                         Text(
                             text = status.name.lowercase().replaceFirstChar { it.uppercase() },
-                            color = if (isSelected)
-                                MaterialTheme.colorScheme.onPrimary
-                            else
-                                MaterialTheme.colorScheme.onSurface
+                            color = if (isSelected) AppColors.ChipSelectedText else AppColors.ChipUnselectedText
                         )
                     },
                     shape = RoundedCornerShape(14.dp),
-                    colors = androidx.compose.material3.FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = MaterialTheme.colorScheme.primary, // make primary = black in theme OR leave & override later
-                        containerColor = MaterialTheme.colorScheme.surface
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = AppColors.ChipSelectedBg,
+                        containerColor = AppColors.ChipUnselectedBg
                     ),
                     border = BorderStroke(
                         1.dp,
-                        if (isSelected) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.outline
+                        if (isSelected) AppColors.ChipSelectedBg else AppColors.ChipBorder
                     )
                 )
             }
