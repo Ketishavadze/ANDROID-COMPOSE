@@ -254,7 +254,7 @@ fun PostHeader(post: Post) {
                 .background(AppTheme.colorScheme.primary)
         ) {
             GlideImage(
-                model = post.avatar,
+                model = post.avatar ?: R.drawable.placeholder_avatar,
                 contentDescription = post.fullName,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
