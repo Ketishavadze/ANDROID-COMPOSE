@@ -1,4 +1,4 @@
-package com.example.compose.ui.common
+package com.example.compose.ui.screen.common
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.compose.common.Resource
 import com.example.compose.domain.usecase.GetPostsUseCase
 import com.example.compose.domain.usecase.GetStoriesUseCase
-import com.example.compose.ui.common.BaseViewModel
+import com.example.compose.ui.screen.common.BaseViewModel
 import com.example.compose.ui.screen.home.contract.HomeEvent
 import com.example.compose.ui.screen.home.contract.HomeSideEffect
 import com.example.compose.ui.screen.home.contract.HomeState
