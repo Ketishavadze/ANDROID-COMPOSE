@@ -30,6 +30,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.example.compose.domain.model.Post
 import com.example.compose.domain.model.Story
 import com.example.compose.ui.theme.AppTheme
@@ -254,10 +255,12 @@ fun PostHeader(post: Post) {
                 .background(AppTheme.colorScheme.primary)
         ) {
             GlideImage(
-                model = post.avatar ?: R.drawable.placeholder_avatar,
+                model = post.avatar,
                 contentDescription = post.fullName,
                 modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                loading = placeholder(R.drawable.placeholder_avatar),
+                failure = placeholder(R.drawable.placeholder_avatar),
             )
         }
 
