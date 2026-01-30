@@ -1,9 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 package com.example.compose.ui.screen.home
 
-import com.example.compose.navigation.Screen
-import com.example.compose.ui.screen.home.contract.HomeEvent
-import com.example.compose.ui.screen.home.contract.HomeSideEffect
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -30,70 +27,61 @@ import androidx.navigation.NavHostController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.placeholder
+import com.example.compose.R
+import com.example.compose.ui.extensions.CollectInLaunchedEffect
+import com.example.compose.ui.extensions.toRelativeTimeString
+import com.example.compose.ui.snackbar.AppSnackbarHost
+import com.example.compose.ui.snackbar.SnackbarController
+import com.example.compose.ui.snackbar.UiMessage
 import com.example.compose.domain.model.Post
 import com.example.compose.domain.model.Story
+import com.example.compose.navigation.Screen
+import com.example.compose.ui.components.navigation.BottomNavigationBar
+import com.example.compose.ui.screen.home.contract.HomeEvent
+import com.example.compose.ui.screen.home.contract.HomeSideEffect
 import com.example.compose.ui.theme.AppTheme
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import java.text.SimpleDateFormat
-import java.util.*
-import com.example.compose.R
+import kotlinx.coroutines.launch
 
-
-// Helper function to format timestamp
-private fun formatTimestamp(timestamp: Long): String {
-    val now = System.currentTimeMillis()
-    val diff = now - timestamp
-
-    return when {
-        diff < 60000 -> "Just now"
-        diff < 3600000 -> "${diff / 60000}m ago"
-        diff < 86400000 -> "${diff / 3600000}h ago"
-        diff < 604800000 -> "${diff / 86400000}d ago"
-        else -> {
-            val sdf = SimpleDateFormat("MMM dd", Locale.getDefault())
-            sdf.format(Date(timestamp))
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    navController: NavHostController,
     viewModel: HomeViewModel = hiltViewModel(),
-    navController: NavHostController
 ) {
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+
+    // Controller for this screen (or lift it to app-level if you want global snackbars)
+    val snackbarController = remember { SnackbarController() }
 
     LaunchedEffect(Unit) {
         viewModel.onEvent(HomeEvent.LoadInitial)
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.sideEffect.collect { sideEffect ->
-            when (sideEffect) {
-                is HomeSideEffect.ShowError -> {
-                    snackbarHostState.showSnackbar(
-                        message = sideEffect.message,
-                        duration = SnackbarDuration.Short
-                    )
-                }
-            }
+    // Convert side effects -> snackbar messages
+    viewModel.sideEffect.CollectInLaunchedEffect {
+        when (it) {
+            is HomeSideEffect.ShowError -> snackbarController.send(UiMessage.Error(it.message))
+        }
+    }
+
+    // One place to actually show snackbars
+    snackbarController.messages.CollectInLaunchedEffect {
+        when (it) {
+            is UiMessage.Error -> snackbarHostState.showSnackbar(
+                message = it.text,
+                duration = SnackbarDuration.Short
+            )
+            is UiMessage.Info -> snackbarHostState.showSnackbar(
+                message = it.text,
+                duration = SnackbarDuration.Short
+            )
         }
     }
 
     Scaffold(
-        snackbarHost = {
-            SnackbarHost(hostState = snackbarHostState) { data ->
-                Snackbar(
-                    snackbarData = data,
-                    containerColor = AppTheme.colorScheme.error,
-                    contentColor = AppTheme.colorScheme.onError,
-                    shape = RoundedCornerShape(8.dp)
-                )
-            }
-        },
+        snackbarHost = { AppSnackbarHost(snackbarHostState) },
         bottomBar = {
             BottomNavigationBar(
                 navController = navController,
@@ -102,38 +90,33 @@ fun HomeScreen(
         },
         containerColor = AppTheme.colorScheme.background
     ) { paddingValues ->
-        SwipeRefresh(
-            state = rememberSwipeRefreshState(state.isLoading),
-            onRefresh = { viewModel.onEvent(HomeEvent.Refresh) },
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(vertical = 16.dp)
-            ) {
-                // Stories Section
-                item {
-                    StoriesSection(stories = state.stories)
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
+        Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
 
-                // Posts Section
-                items(state.posts) { post ->
-                    PostItem(post = post)
-                    Spacer(modifier = Modifier.height(16.dp))
+            SwipeRefresh(
+                state = rememberSwipeRefreshState(state.isLoading),
+                onRefresh = { viewModel.onEvent(HomeEvent.Refresh) },
+                modifier = Modifier.fillMaxSize()
+            ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(vertical = 16.dp)
+                ) {
+                    item {
+                        StoriesSection(stories = state.stories)
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
+                    items(state.posts) { post ->
+                        PostItem(post = post)
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
                 }
             }
-        }
 
-        if (state.isLoading && state.posts.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
+            if (state.isLoading && state.posts.isEmpty()) {
                 CircularProgressIndicator(
-                    color = AppTheme.colorScheme.primary
+                    color = AppTheme.colorScheme.primary,
+                    modifier = Modifier.align(Alignment.Center)
                 )
             }
         }
@@ -146,9 +129,7 @@ fun StoriesSection(stories: List<Story>) {
         contentPadding = PaddingValues(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(stories) { story ->
-            StoryItem(story = story)
-        }
+        items(stories) { story -> StoryItem(story) }
     }
 }
 
@@ -160,7 +141,7 @@ fun StoryItem(story: Story) {
             .width(140.dp)
             .height(200.dp)
             .clip(RoundedCornerShape(16.dp))
-            .clickable { /* Handle story click */ }
+            .clickable { /* TODO */ }
     ) {
         GlideImage(
             model = story.cover,
@@ -169,21 +150,16 @@ fun StoryItem(story: Story) {
             contentScale = ContentScale.Crop
         )
 
-        // Gradient overlay
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Transparent,
-                            Color.Black.copy(alpha = 0.7f)
-                        )
+                        colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.7f))
                     )
                 )
         )
 
-        // Story title
         Text(
             text = story.title,
             style = AppTheme.typography.titleMedium,
@@ -199,41 +175,34 @@ fun StoryItem(story: Story) {
 @Composable
 fun PostItem(post: Post) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = AppTheme.colorScheme.surface
-        ),
+        colors = CardDefaults.cardColors(containerColor = AppTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            // Post Header
-            PostHeader(post = post)
-
-            // Post Content
-            if (post.postDesc.isNotEmpty()) {
-                Text(
-                    text = post.postDesc,
-                    style = AppTheme.typography.bodyMedium,
-                    color = AppTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-            }
-
-            // Post Images
-            if (post.images.isNotEmpty()) {
-                PostImagesGrid(images = post.images)
-                Spacer(modifier = Modifier.height(12.dp))
-            }
-
-            // Post Footer
-            PostFooter(post = post)
+        Column(modifier = Modifier.fillMaxWidth()) {
+            PostHeader(post)
+            PostBody(post)
+            PostFooter(post)
         }
+    }
+}
+
+@Composable
+private fun PostBody(post: Post) {
+    if (post.postDesc.isNotEmpty()) {
+        Text(
+            text = post.postDesc,
+            style = AppTheme.typography.bodyMedium,
+            color = AppTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+    }
+
+    if (post.images.isNotEmpty()) {
+        PostImagesGrid(images = post.images)
+        Spacer(modifier = Modifier.height(12.dp))
     }
 }
 
@@ -241,12 +210,9 @@ fun PostItem(post: Post) {
 @Composable
 fun PostHeader(post: Post) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+        modifier = Modifier.fillMaxWidth().padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // User Avatar
         Box(
             modifier = Modifier
                 .size(48.dp)
@@ -265,10 +231,7 @@ fun PostHeader(post: Post) {
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        // User Info
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
+        Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = post.fullName,
                 style = AppTheme.typography.titleMedium,
@@ -276,7 +239,7 @@ fun PostHeader(post: Post) {
                 fontWeight = FontWeight.SemiBold
             )
             Text(
-                text = formatTimestamp(post.postDate),
+                text = post.postDate.toRelativeTimeString(),
                 style = AppTheme.typography.bodySmall,
                 color = AppTheme.colorScheme.onSurface.copy(alpha = 0.6f)
             )
@@ -300,11 +263,10 @@ fun PostImagesGrid(images: List<String>) {
                 contentScale = ContentScale.Crop
             )
         }
+
         2 -> {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 images.forEach { imageUrl ->
@@ -320,12 +282,10 @@ fun PostImagesGrid(images: List<String>) {
                 }
             }
         }
+
         else -> {
-            // Grid for 3 or more images
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Row(
@@ -351,6 +311,7 @@ fun PostImagesGrid(images: List<String>) {
                         contentScale = ContentScale.Crop
                     )
                 }
+                // Optional: handle remaining images with another row or "+N" overlay.
             }
         }
     }
@@ -359,154 +320,55 @@ fun PostImagesGrid(images: List<String>) {
 @Composable
 fun PostFooter(post: Post) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Comments
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable { /* Handle comments */ }
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_message),
-                contentDescription = "Comments",
-                tint = AppTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                text = "${post.commentsCount} Comments",
-                style = AppTheme.typography.bodySmall,
-                color = AppTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-            )
-        }
+        FooterAction(
+            icon = { Icon(painterResource(id = R.drawable.ic_message), contentDescription = "Comments") },
+            text = "${post.commentsCount} Comments",
+            onClick = { /* TODO */ }
+        )
 
-        // Likes
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable { /* Handle likes */ }
-        ) {
-            Icon(
-                imageVector = if (post.isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                contentDescription = "Likes",
-                tint = if (post.isLiked) AppTheme.colorScheme.primary else AppTheme.colorScheme.onSurface.copy(
-                    alpha = 0.6f
-                ),
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                text = "${post.likesCount} Likes",
-                style = AppTheme.typography.bodySmall,
-                color = AppTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-            )
-        }
+        FooterAction(
+            icon = {
+                Icon(
+                    imageVector = if (post.isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                    contentDescription = "Likes",
+                    tint = if (post.isLiked) AppTheme.colorScheme.primary
+                    else AppTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                )
+            },
+            text = "${post.likesCount} Likes",
+            onClick = { /* TODO */ }
+        )
 
-        // Share
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable { /* Handle share */ }
-        ) {
-            Icon(
-                imageVector = Icons.Default.Share,
-                contentDescription = "Share",
-                tint = AppTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                text = "Share",
-                style = AppTheme.typography.bodySmall,
-                color = AppTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-            )
-        }
+        FooterAction(
+            icon = { Icon(imageVector = Icons.Default.Share, contentDescription = "Share") },
+            text = "Share",
+            onClick = { /* TODO */ }
+        )
     }
 }
 
 @Composable
-fun BottomNavigationBar(
-    navController: NavHostController,
-    currentRoute: String
+private fun FooterAction(
+    icon: @Composable () -> Unit,
+    text: String,
+    onClick: () -> Unit,
 ) {
-    NavigationBar(
-        containerColor = AppTheme.colorScheme.surface,
-        contentColor = AppTheme.colorScheme.onSurface
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.clickable { onClick() }
     ) {
-        NavigationBarItem(
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.Home,
-                    contentDescription = "Home"
-                )
-            },
-            selected = currentRoute == Screen.Home.route,
-            onClick = {
-                navController.navigate(Screen.Home.route) {
-                    popUpTo(Screen.Home.route) { inclusive = true }
-                }
-            },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = AppTheme.colorScheme.primary,
-                unselectedIconColor = AppTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                indicatorColor = AppTheme.colorScheme.primary.copy(alpha = 0.1f)
-            )
-        )
-
-        NavigationBarItem(
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.Favorite,
-                    contentDescription = "Favorite"
-                )
-            },
-            selected = currentRoute == Screen.Favorite.route,
-            onClick = {
-                navController.navigate(Screen.Favorite.route)
-            },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = AppTheme.colorScheme.primary,
-                unselectedIconColor = AppTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                indicatorColor = AppTheme.colorScheme.primary.copy(alpha = 0.1f)
-            )
-        )
-
-        NavigationBarItem(
-            icon = {
-                Icon(
-                    painter = painterResource(R.drawable.ic_message),
-                    contentDescription = "Chat"
-                )
-            },
-            selected = currentRoute == Screen.Chat.route,
-            onClick = {
-                navController.navigate(Screen.Chat.route)
-            },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = AppTheme.colorScheme.primary,
-                unselectedIconColor = AppTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                indicatorColor = AppTheme.colorScheme.primary.copy(alpha = 0.1f)
-            )
-        )
-
-        NavigationBarItem(
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.Notifications,
-                    contentDescription = "Notifications"
-                )
-            },
-            selected = currentRoute == Screen.Notification.route,
-            onClick = {
-                navController.navigate(Screen.Notification.route)
-            },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = AppTheme.colorScheme.primary,
-                unselectedIconColor = AppTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                indicatorColor = AppTheme.colorScheme.primary.copy(alpha = 0.1f)
-            )
+        CompositionLocalProvider(LocalContentColor provides AppTheme.colorScheme.onSurface.copy(alpha = 0.6f)) {
+            Box(Modifier.size(20.dp)) { icon() }
+        }
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            text = text,
+            style = AppTheme.typography.bodySmall,
+            color = AppTheme.colorScheme.onSurface.copy(alpha = 0.6f)
         )
     }
 }
