@@ -2,6 +2,8 @@ package com.example.compose
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import com.example.compose.core.ui.theme.AppTheme
+import com.example.compose.feature.register.presentation.screen.RegisterRoute
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import dagger.hilt.android.AndroidEntryPoint

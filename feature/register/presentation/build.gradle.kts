@@ -90,8 +90,9 @@ dependencies {
 
     implementation(project(":core:presentation"))
     implementation(project(":feature:register:domain"))
-    implementation(project(":core:domain"))
     implementation(project(":core:ui"))
+    implementation(project(":feature:register:data"))
+    implementation(project(":core:domain"))
     testImplementation(kotlin("test"))
 
 }
