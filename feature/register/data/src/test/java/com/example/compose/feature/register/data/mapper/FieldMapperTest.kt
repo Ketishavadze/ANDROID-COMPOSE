@@ -1,7 +1,7 @@
-package com.example.compose.data.mapper
+package com.example.compose.feature.register.data.mapper
 
-import com.example.compose.data.remote.dto.FieldConfigDto
-import com.example.compose.domain.model.FieldType
+import com.example.compose.feature.register.data.remote.dto.FieldConfigDto
+import com.example.compose.feature.register.domain.model.FieldType
 import org.junit.Assert.*
 import org.junit.Test
 

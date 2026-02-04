@@ -92,5 +92,6 @@ dependencies {
     implementation(project(":feature:register:domain"))
     implementation(project(":core:domain"))
     implementation(project(":core:ui"))
+    testImplementation(kotlin("test"))
 
 }

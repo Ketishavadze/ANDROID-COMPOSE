@@ -1,14 +1,16 @@
-package com.example.compose.ui.screen.register
+package com.example.compose.feature.register.presentation.vm
 
 import app.cash.turbine.test
-import com.example.compose.MainDispatcherRule
-import com.example.compose.data.remote.common.Resource
-import com.example.compose.domain.model.*
-import com.example.compose.domain.usecase.GetRegisterConfigUseCase
-import com.example.compose.domain.usecase.SubmitRegisterUseCase
-import com.example.compose.domain.validation.ValidateRegisterFields
-import com.example.compose.ui.screen.register.contract.RegisterEvent
-import com.example.compose.ui.screen.register.contract.RegisterSideEffect
+import com.example.compose.core.domain.common.Resource
+import com.example.compose.feature.register.domain.model.FieldConfig
+import com.example.compose.feature.register.domain.model.FieldType
+import com.example.compose.feature.register.domain.model.KeyboardType
+import com.example.compose.feature.register.domain.usecase.GetRegisterConfigUseCase
+import com.example.compose.feature.register.domain.usecase.SubmitRegisterUseCase
+import com.example.compose.feature.register.domain.validation.ValidateRegisterFields
+import com.example.compose.feature.register.presentation.MainDispatcherRule
+import com.example.compose.feature.register.presentation.contract.RegisterEvent
+import com.example.compose.feature.register.presentation.contract.RegisterSideEffect
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -17,11 +19,13 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
+import kotlin.collections.get
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class RegisterViewModelTest {
 
-    @get:Rule val mainDispatcherRule = MainDispatcherRule()
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
 
     private val getConfig: GetRegisterConfigUseCase = mockk()
     private val submit: SubmitRegisterUseCase = mockk()

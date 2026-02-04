@@ -1,6 +1,8 @@
-package com.example.compose.domain.validation
+package com.example.compose.feature.register.domain.validation
 
-import com.example.compose.domain.model.*
+import com.example.compose.feature.register.domain.model.FieldConfig
+import com.example.compose.feature.register.domain.model.FieldType
+import com.example.compose.feature.register.domain.model.KeyboardType
 import org.junit.Assert.*
 import org.junit.Test
 
@@ -10,7 +12,15 @@ class ValidateRegisterFieldsTest {
     fun `required empty returns error with hint`() {
         val config = listOf(
             listOf(
-                FieldConfig(2, "Email", FieldType.INPUT, KeyboardType.TEXT, required = true, isActive = true, iconUrl = null)
+                FieldConfig(
+                    2,
+                    "Email",
+                    FieldType.INPUT,
+                    KeyboardType.TEXT,
+                    required = true,
+                    isActive = true,
+                    iconUrl = null
+                )
             )
         )
         val values = emptyMap<Int, String>()

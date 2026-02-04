@@ -1,4 +1,4 @@
-package com.example.compose
+package com.example.compose.feature.register.presentation
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
