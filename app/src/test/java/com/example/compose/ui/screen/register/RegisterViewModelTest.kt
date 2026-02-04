@@ -2,7 +2,7 @@ package com.example.compose.ui.screen.register
 
 import app.cash.turbine.test
 import com.example.compose.MainDispatcherRule
-import com.example.compose.common.Resource
+import com.example.compose.data.remote.common.Resource
 import com.example.compose.domain.model.*
 import com.example.compose.domain.usecase.GetRegisterConfigUseCase
 import com.example.compose.domain.usecase.SubmitRegisterUseCase

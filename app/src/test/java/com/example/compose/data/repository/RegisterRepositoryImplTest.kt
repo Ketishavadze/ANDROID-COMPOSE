@@ -1,6 +1,6 @@
 package com.example.compose.data.repository
 
-import com.example.compose.common.Resource
+import com.example.compose.data.remote.common.Resource
 import com.example.compose.data.remote.api.RegisterApiService
 import com.example.compose.data.remote.dto.FieldConfigDto
 import io.mockk.coEvery

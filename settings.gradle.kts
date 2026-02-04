@@ -21,4 +21,10 @@ dependencyResolutionManagement {
 
 rootProject.name = "compose"
 include(":app")
- 
+include(":core:data")
+include(":core:presentation")
+include(":core:domain")
+include(":feature:register:presentation")
+include(":feature:register:domain")
+include(":feature:register:data")
+include(":core:ui")
