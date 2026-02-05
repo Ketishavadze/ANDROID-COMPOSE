@@ -36,7 +36,7 @@ object NetworkModule {
     ): Retrofit {
         val contentType = "application/json".toMediaType()
         return Retrofit.Builder()
-            .baseUrl("https://e97b2d97-2949-4fd7-8e15-be64c65ab561.mock.pstmn.io/")  // Hardcoded
+            .baseUrl("https://e97b2d97-2949-4fd7-8e15-be64c65ab561.mock.pstmn.io/")
             .client(okHttpClient)
             .addConverterFactory(json.asConverterFactory(contentType))
             .build()

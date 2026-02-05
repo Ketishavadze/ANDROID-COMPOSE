@@ -37,28 +37,6 @@ android {
 }
 
 dependencies {
-
-    // Compose BOM - should be FIRST
-    implementation(platform("androidx.compose:compose-bom:2024.06.00"))
-
-    // Compose dependencies (versions managed by BOM)
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.foundation:foundation")
-    implementation("androidx.compose.ui:ui-text")
-    debugImplementation("androidx.compose.ui:ui-tooling")
-
-    // Activity Compose
-    implementation("androidx.activity:activity-compose:1.9.1")
-
-    // Navigation
-    implementation("androidx.navigation:navigation-compose:2.7.7")
-
-    // Lifecycle
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.4")
-
     // Hilt
     implementation("com.google.dagger:hilt-android:2.51.1")
     ksp("com.google.dagger:hilt-android-compiler:2.51.1")
@@ -76,10 +54,6 @@ dependencies {
     // Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
-
-    // Glide
-    implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
-    implementation("com.github.bumptech.glide:glide:4.16.0")
 
     // Accompanist
     implementation("com.google.accompanist:accompanist-swiperefresh:0.32.0")
